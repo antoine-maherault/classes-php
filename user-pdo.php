@@ -39,10 +39,11 @@
     session_start();
     // users details 
     $sql = "SELECT * FROM utilisateurs" ;
-    $query = $this->bdd->query($sql);
+    $query = $this->bdd->prepare($sql);
+    $query -> execute();
     $this -> users = $query->fetchAll();
   }
-
+  
   function register($login,$password,$email,$firstname,$lastname){ //add tests no same login
     // controls 
     foreach($this -> users as $user){
@@ -188,19 +189,18 @@
 /////////////////// TESTS & DISPLAY ///////////////////  
 
   $user = new Userpdo();
-  // echo $user->test();
 
   //_________Register _________//
     // echo $user->register("Junei","X","X","X","X");
 
   //_________Connect _________//
-    echo $user->connect("Junei","X");
+    echo $user->connect("Juneo","O");
 
   //_________Delete _________//
     // echo $user->delete();
 
   //_________Update _________//
-    echo $user->update("Juneo","O","O","O","O");
+    // echo $user->update("Juneo","O","O","O","O");
 
   //_________isConnected _________//
     // echo $user->isConnected();
