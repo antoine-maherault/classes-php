@@ -29,12 +29,18 @@
 
   function __construct(){
     // connect to DB
-    $this->bdd = new mysqli("Localhost", "root", "root", 'classes');
+    $server = "localhost";
+	  $username = "root";
+	  $password = "root";
+	  $database = "classes";
+    $dsn = "mysql:host=$server;dbname=$database;charset=UTF8";
+    $this->bdd = new PDO($dsn, $username, $password);
+    // session start 
     session_start();
     // users details 
     $sql = "SELECT * FROM utilisateurs" ;
     $query = $this->bdd->query($sql);
-    $this -> users = $query->fetch_all();
+    $this -> users = $query->fetchAll();
   }
 
   function register($login,$password,$email,$firstname,$lastname){ //add tests no same login
@@ -49,8 +55,13 @@
     } 
     // query 
     if ($stop == 0){
-      $sql = "INSERT INTO utilisateurs(login, password, email, firstname,lastname) VALUES ('$login', '$password', '$email', '$firstname','$lastname')";
-      $query = $this->bdd->query($sql);
+      $bdd=$this->bdd;
+		  $sql = "INSERT INTO utilisateurs(login,password,email,firstname,lastname) VALUES (:login, :password, :email, :firstname, :lastname)";
+      $prepare = $bdd->prepare($sql);
+      $execute = $prepare->execute([':login' => $login , ':password' => $password, ':email' => $email, ':firstname' => $firstname, ':lastname' => $lastname]);
+
+      // $sql = "INSERT INTO utilisateurs(login, password, email, firstname,lastname) VALUES ('$login', '$password', '$email', '$firstname','$lastname')";
+      // $query = $this->bdd->query($sql);
       // feedback 
       return "
         <table style='text-align:center'>
@@ -99,10 +110,15 @@
 
   function delete(){
     $login = $this->login;
-    $sql = "DELETE FROM `utilisateurs` WHERE `login` = '$login'";
-    $query = $this->bdd->query($sql);
+    $bdd=$this->bdd;
+    $sql = "DELETE FROM `utilisateurs` WHERE `login` = :login";
+    $prepare = $bdd->prepare($sql);
+    $execute = $prepare->execute([':login' => $login]);
     session_destroy();
-    $this -> login = "";
+    $this -> login = NULL;
+    $this -> email = NULL;
+    $this -> firstname = NULL;
+    $this -> lastname = NULL;    
     return $login . " was deleted succesfully";
   }
 
@@ -118,8 +134,10 @@
     // update user details 
     if ($stop == 0 && isset($_SESSION["connected"])){
       $log = $this->login;
-      $sql = "UPDATE `utilisateurs` SET login = '$login', password = '$password', email = '$email', firstname = '$firstname',lastname = '$firstname' WHERE login = '$log'";
-      $query = $this->bdd->query($sql);
+      $bdd=$this->bdd;
+      $sql = "UPDATE `utilisateurs` SET login = :login, password = :password, email = :email, firstname = :firstname,lastname = :firstname WHERE `login` = :log";
+      $prepare = $bdd->prepare($sql);
+      $execute = $prepare->execute([':log' => $log, ':login' => $login, ':password' => $password, ':email' => $email, ':firstname' => $firstname, ':lastname' => $lastname]);
       $this -> login = $login;
       $this -> email = $email;
       $this -> firstname = $firstname;
@@ -170,18 +188,19 @@
 /////////////////// TESTS & DISPLAY ///////////////////  
 
   $user = new Userpdo();
+  // echo $user->test();
 
   //_________Register _________//
-    // echo $user->register("June","X","X","X","X");
+    // echo $user->register("Junei","X","X","X","X");
 
   //_________Connect _________//
-    echo $user->connect("Jill","X");
+    echo $user->connect("Junei","X");
 
   //_________Delete _________//
     // echo $user->delete();
 
   //_________Update _________//
-    // echo $user->update("Jane","O","O","O","O");
+    echo $user->update("Juneo","O","O","O","O");
 
   //_________isConnected _________//
     // echo $user->isConnected();

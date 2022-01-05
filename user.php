@@ -99,7 +99,10 @@
     $login = $this->login;
     $sql = mysqli_query($this->bdd,"DELETE FROM `utilisateurs` WHERE `login` = '$login'");
     session_destroy();
-    $this -> login = "";
+    $this -> login = NULL;
+    $this -> email = NULL;
+    $this -> firstname = NULL;
+    $this -> lastname = NULL;
     return $login . " was deleted succesfully";
   }
 
